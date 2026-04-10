@@ -33,7 +33,7 @@ O objetivo é manter seu pet vivo e feliz, cuidando de suas necessidades básica
 - 📈 **Sistema de Evolução:** Acompanhe o ciclo de vida: **Ovo ➡️ Bebê ➡️ Criança ➡️ Adolescente ➡️ Adulto**.
 - 🛠️ **Gestão Dinâmica:** Monitore barras de status em tempo real (Fome, Felicidade, Energia e Higiene).
 - 🎮 **Mini-games Interativos:** Jogue com seu pet para aumentar sua felicidade através de desafios de reflexo.
-- 🔊 **Áudio Retro:** Efeitos sonoros de 8-bits gerados via *Web Audio API* para uma imersão completa.
+- 🔊 **Áudio Retro:** Efeitos sonoros de 8-bits gerados via _Web Audio API_ para uma imersão completa.
 - 💾 **Persistência com Firebase:** Seu progresso é salvo automaticamente na nuvem, permitindo continuar de onde parou.
 - 🌓 **Modo Noturno Local:** O jogo reage ao horário real, sugerindo que o pet descanse durante a noite.
 - 🏆 **Sistema de Recordes:** Tente bater seu recorde de sobrevivência (ticks de vida).
@@ -44,7 +44,7 @@ O objetivo é manter seu pet vivo e feliz, cuidando de suas necessidades básica
 
 Este projeto foi construído focando na performance e simplicidade do código puro:
 
-- **HTML5 & CSS3:** Estrutura semântica e estilização moderna com toques de *Glassmorphism* e fontes pixeladas.
+- **HTML5 & CSS3:** Estrutura semântica e estilização moderna com toques de _Glassmorphism_ e fontes pixeladas.
 - **Vanilla JavaScript (ES6+):** Toda a lógica do jogo, gerenciamento de estado e animações.
 - **Canvas API:** Renderização de alta performance para os sprites e efeitos de partículas.
 - **Firebase:** Integração para salvamento de estado e sincronização online.
@@ -62,7 +62,7 @@ Este projeto foi construído focando na performance e simplicidade do código pu
    ```bash
    cd tamaweb
    ```
-3. **Abra o arquivo `index.html`** diretamente no seu navegador ou utilize uma extensão como *Live Server* no VS Code.
+3. **Abra o arquivo `index.html`** diretamente no seu navegador ou utilize uma extensão como _Live Server_ no VS Code.
 
 > [!NOTE]
 > Para que o persistência de dados (Firebase) funcione corretamente em um fork, você precisará configurar suas próprias credenciais no arquivo `firebase.js`.
@@ -75,7 +75,7 @@ Este projeto foi desenvolvido com ❤️ por **Robert Almeida**.
 
 - **Portfolio:** [robertalmeida.vercel.app](https://robertalmeida.vercel.app/)
 - **GitHub:** [@RobertAlmeida](https://github.com/RobertAlmeida)
-- **LinkedIn:** [Robert Almeida](https://www.linkedin.com/in/robert-almeida-89a1b01b6/)
+- **LinkedIn:** [Robert Almeida](https://www.linkedin.com/in/robertrochaalmeida/)
 
 ---
 
