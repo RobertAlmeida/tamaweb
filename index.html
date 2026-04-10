@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TamaWEB – Bichinho Virtual</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     TELA DE BOOT
+════════════════════════════════════════ -->
+<div id="boot-screen" class="boot-screen">
+  <div class="boot-content">
+    <div class="boot-logo pixel-text">TAMA<span>WEB</span></div>
+    <div class="boot-tagline pixel-text">— BICHINHO VIRTUAL —</div>
+    <div class="boot-bar-wrap">
+      <div class="boot-bar" id="boot-bar"></div>
+    </div>
+    <div class="boot-pct pixel-text" id="boot-pct">0%</div>
+    <div class="boot-sub pixel-text">v2.0 © 1996–2024</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     TELA DE NOME
+════════════════════════════════════════ -->
+<div id="name-screen" class="name-screen hidden">
+  <div class="device-shell name-shell">
+    <div class="screen-bezel">
+      <div class="lcd-screen">
+        <div class="lcd-inner">
+          <div class="name-header pixel-text">✦ NOVO JOGO ✦</div>
+          <p class="pixel-text name-prompt">SEU NOME:</p>
+          <input id="player-name-input" class="pixel-text retro-input" maxlength="8" placeholder="JOGADOR" autocomplete="off" />
+          <p class="pixel-text name-prompt" style="margin-top:12px">NOME DO PET:</p>
+          <input id="pet-name-input" class="pixel-text retro-input" maxlength="8" placeholder="TAMA" autocomplete="off" />
+          <div class="name-species pixel-text">ESCOLHA A ESPÉCIE:</div>
+          <div class="species-row" id="species-row">
+            <button class="species-btn selected pixel-text" data-species="blob" title="Blob">🫧</button>
+            <button class="species-btn pixel-text" data-species="cat" title="Gato">🐱</button>
+            <button class="species-btn pixel-text" data-species="dino" title="Dino">🦕</button>
+            <button class="species-btn pixel-text" data-species="ghost" title="Fantasma">👻</button>
+          </div>
+          <button class="retro-btn-wide pixel-text" id="start-btn">▶ INICIAR</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     TELA PRINCIPAL
+════════════════════════════════════════ -->
+<div id="main-screen" class="main-screen hidden">
+
+  <!-- Dispositivo -->
+  <div class="device-shell" id="device">
+
+    <!-- Topo / cabeçalho -->
+    <div class="device-header">
+      <span class="pixel-text device-title" id="header-title">TAMAWEB</span>
+      <span class="pixel-text device-cloud" id="header-cloud">●</span>
+      <span class="pixel-text device-age" id="header-age">IDADE:0</span>
+    </div>
+
+    <!-- Ícones de status (topo da tela) -->
+    <div class="status-icons">
+      <div class="status-icon" id="icon-hunger"   title="Fome">🍖</div>
+      <div class="status-icon" id="icon-happy"    title="Felicidade">😊</div>
+      <div class="status-icon" id="icon-energy"   title="Energia">⚡</div>
+      <div class="status-icon" id="icon-hygiene"  title="Higiene">🚿</div>
+      <div class="status-icon" id="icon-sick"     title="Doente" style="display:none">💊</div>
+    </div>
+
+    <!-- Tela LCD principal -->
+    <div class="screen-bezel">
+      <div class="lcd-screen" id="lcd">
+        <div class="lcd-inner">
+
+          <!-- Canvas do bichinho -->
+          <canvas id="pet-canvas" width="80" height="64"></canvas>
+
+          <!-- Partículas de ação -->
+          <canvas id="fx-canvas" width="160" height="128" style="position:absolute;top:0;left:0;pointer-events:none;width:160px;height:128px;image-rendering:pixelated;"></canvas>
+
+          <!-- Mensagem de evento -->
+          <div id="event-msg" class="pixel-text event-msg hidden"></div>
+
+          <!-- Balão de fala -->
+          <div id="speech-bubble" class="speech-bubble hidden pixel-text"></div>
+
+          <!-- Mini-jogo overlay -->
+          <div id="minigame-overlay" class="minigame-overlay hidden">
+            <canvas id="minigame-canvas" width="160" height="128"></canvas>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Barras de status -->
+    <div class="status-bars">
+      <div class="bar-row">
+        <span class="pixel-text bar-label">FOME</span>
+        <div class="bar-track"><div class="bar-fill hunger-bar" id="bar-hunger"></div></div>
+        <span class="pixel-text bar-val" id="val-hunger">80</span>
+      </div>
+      <div class="bar-row">
+        <span class="pixel-text bar-label">FELIZ</span>
+        <div class="bar-track"><div class="bar-fill happy-bar" id="bar-happy"></div></div>
+        <span class="pixel-text bar-val" id="val-happy">80</span>
+      </div>
+      <div class="bar-row">
+        <span class="pixel-text bar-label">ENRG</span>
+        <div class="bar-track"><div class="bar-fill energy-bar" id="bar-energy"></div></div>
+        <span class="pixel-text bar-val" id="val-energy">80</span>
+      </div>
+      <div class="bar-row">
+        <span class="pixel-text bar-label">HIGIE</span>
+        <div class="bar-track"><div class="bar-fill hygiene-bar" id="bar-hygiene"></div></div>
+        <span class="pixel-text bar-val" id="val-hygiene">80</span>
+      </div>
+    </div>
+
+    <!-- Botões de ação A / B / C / D -->
+    <div class="btn-row">
+      <div class="btn-group">
+        <button class="hw-btn" id="btn-a" data-action="feed">
+          <div class="btn-icon">🍖</div>
+          <div class="pixel-text btn-label">COMIDA</div>
+        </button>
+        <button class="hw-btn" id="btn-b" data-action="play">
+          <div class="btn-icon">🎮</div>
+          <div class="pixel-text btn-label">JOGAR</div>
+        </button>
+      </div>
+      <div class="btn-group">
+        <button class="hw-btn" id="btn-c" data-action="sleep">
+          <div class="btn-icon">😴</div>
+          <div class="pixel-text btn-label">DORMIR</div>
+        </button>
+        <button class="hw-btn" id="btn-d" data-action="bathe">
+          <div class="btn-icon">🛁</div>
+          <div class="pixel-text btn-label">BANHO</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Botão de remédio (aparece quando doente) -->
+    <div class="medicine-row hidden" id="medicine-row">
+      <button class="hw-btn medicine-btn pixel-text" id="btn-medicine" data-action="heal">
+        <div class="btn-icon">💊</div>
+        <div class="pixel-text btn-label">REMÉDIO</div>
+      </button>
+    </div>
+
+    <!-- Alça decorativa -->
+    <div class="device-strap"></div>
+
+  </div><!-- /device-shell -->
+
+  <!-- Painel lateral de status textual (desktop) -->
+  <div class="side-panel" id="side-panel">
+    <div class="pixel-text panel-title">📋 STATUS</div>
+    <div class="pixel-text panel-row" id="panel-name"></div>
+    <div class="pixel-text panel-row" id="panel-stage"></div>
+    <div class="pixel-text panel-row" id="panel-mood"></div>
+    <div class="pixel-text panel-row" id="panel-age"></div>
+    <div class="pixel-text panel-row" id="panel-species"></div>
+    <hr class="retro-hr"/>
+    <div class="pixel-text panel-title">🏆 RECORDES</div>
+    <div class="pixel-text panel-row" id="panel-best"></div>
+    <hr class="retro-hr"/>
+    <div class="pixel-text panel-title">📜 LOG</div>
+    <div id="log-list"></div>
+    <hr class="retro-hr"/>
+    <button class="retro-btn-wide pixel-text" id="reset-btn">↺ REINICIAR</button>
+  </div>
+
+</div><!-- /main-screen -->
+
+<!-- Modal de morte -->
+<div id="death-modal" class="modal hidden">
+  <div class="modal-box pixel-text">
+    <div class="modal-title">✝ FIM DE JOGO ✝</div>
+    <div id="death-msg" class="modal-msg"></div>
+    <div id="death-score" class="modal-score"></div>
+    <button class="retro-btn-wide pixel-text" id="restart-btn">↺ NOVO JOGO</button>
+  </div>
+</div>
+
+<!-- Modal de evolução -->
+<div id="evolve-modal" class="modal hidden">
+  <div class="modal-box pixel-text evolve-box">
+    <div class="modal-title evolve-title">✦ EVOLUÇÃO! ✦</div>
+    <canvas id="evolve-canvas" width="80" height="64" style="width:160px;height:128px;image-rendering:pixelated;display:block;margin:10px auto;"></canvas>
+    <div id="evolve-msg" class="modal-msg"></div>
+    <button class="retro-btn-wide pixel-text" id="evolve-ok">▶ CONTINUAR</button>
+  </div>
+</div>
+
+<script src="firebase.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
