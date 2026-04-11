@@ -313,6 +313,7 @@ input, textarea {
 #minigame-canvas {
   image-rendering: pixelated;
   width: 160px; height: 128px;
+  touch-action: none;
 }
 
 /* ════════════════════════════════════════

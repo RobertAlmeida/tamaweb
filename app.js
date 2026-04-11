@@ -994,16 +994,34 @@ function startMinigame() {
     // Target
     if (activeTarget) {
       const life = (Date.now() - activeTarget.born) / activeTarget.duration;
-      const r = Math.max(2, Math.round(14 * (1 - life * 0.5)));
+      const r = Math.max(3, Math.round(16 * (1 - life * 0.5)));
+      const cx = activeTarget.x;
+      const cy = activeTarget.y;
+
+      // Outer Box
       mgCtx.fillStyle = life > 0.7 ? "#0f380f" : "#306230";
-      mgCtx.fillRect(activeTarget.x - r, activeTarget.y - r, r*2, r*2);
+      mgCtx.fillRect(cx - r, cy - r, r*2, r*2);
+      
+      // Inner Box
       mgCtx.fillStyle = "#8bac0f";
-      mgCtx.fillRect(activeTarget.x - r + 2, activeTarget.y - r + 2, r*2 - 4, r*2 - 4);
-      // timer bar
+      mgCtx.fillRect(cx - r + 2, cy - r + 2, r*2 - 4, r*2 - 4);
+      
+      // Target Crosshair
       mgCtx.fillStyle = "#0f380f";
-      mgCtx.fillRect(activeTarget.x - 14, activeTarget.y + r + 2, 28, 3);
+      mgCtx.fillRect(cx - 1, cy - r, 2, r*2);
+      mgCtx.fillRect(cx - r, cy - 1, r*2, 2);
+
+      // Center dot
       mgCtx.fillStyle = "#8bac0f";
-      mgCtx.fillRect(activeTarget.x - 14, activeTarget.y + r + 2, Math.round(28 * (1 - life)), 3);
+      mgCtx.fillRect(cx - 2, cy - 2, 4, 4);
+      mgCtx.fillStyle = "#0f380f";
+      mgCtx.fillRect(cx - 1, cy - 1, 2, 2);
+
+      // Timer Bar
+      mgCtx.fillStyle = "#0f380f";
+      mgCtx.fillRect(cx - 14, cy + r + 4, 28, 4);
+      mgCtx.fillStyle = "#8bac0f";
+      mgCtx.fillRect(cx - 13, cy + r + 5, Math.max(0, Math.round(26 * (1 - life))), 2);
     }
 
     // "Toque!" hint
@@ -1035,8 +1053,17 @@ function startMinigame() {
     if (!activeTarget) return;
     const rect = DOM.minigameCanvas.getBoundingClientRect();
     const scaleX = 160 / rect.width, scaleY = 128 / rect.height;
-    const cx = e.touches ? (e.touches[0].clientX - rect.left) * scaleX : (e.clientX - rect.left) * scaleX;
-    const cy = e.touches ? (e.touches[0].clientY - rect.top)  * scaleY : (e.clientY - rect.top)  * scaleY;
+    let clientX = e.clientX;
+    let clientY = e.clientY;
+    if (e.touches && e.touches.length > 0) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else if (e.changedTouches && e.changedTouches.length > 0) {
+      clientX = e.changedTouches[0].clientX;
+      clientY = e.changedTouches[0].clientY;
+    }
+    const cx = (clientX - rect.left) * scaleX;
+    const cy = (clientY - rect.top) * scaleY;
     const dx = cx - activeTarget.x, dy = cy - activeTarget.y;
     const dist = Math.sqrt(dx*dx + dy*dy);
     if (dist < 20) {
