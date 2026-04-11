@@ -221,6 +221,10 @@ textarea {
   font-size: 6px;
   color: var(--shell-dark);
 }
+.device-coins {
+  font-size: 6px;
+  color: var(--shell-dark);
+}
 .device-cloud {
   font-size: 8px;
   color: var(--shell-dark);

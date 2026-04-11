@@ -53,6 +53,7 @@ const MSGS = {
   event_happy: ["Tô feliz! 🌟", "Dia especial!", "Yay!"],
   event_energy: ["Energia renovada!", "Tô cheio de vida!", "Uau, que pique!"],
   event_clean: ["Me sinto limpo!", "Cheiroso!", "Refrescante!"],
+  event_birthday: ["Aniversário!", "Feliz aniversário!", "Presente especial!"],
   death: ["Vou dormir pra sempre...", "Cuide bem do próximo.", "Adeus amigo..."],
   minigame_win: ["Acertei! ⭐", "Uhuul! Ganho!", "Sou o melhor!"],
   minigame_lose: ["Errei...", "Quase...", "De novo!"],
@@ -82,6 +83,8 @@ let state = {
   lastSave: Date.now(),
   createdAt: Date.now(),
   bestAge: 0,
+  coins: 0,
+  lastBirthday: 0,
 };
 
 // ─────────────────────────────────────────────────────────────────
@@ -579,6 +582,7 @@ const DOM = {
   headerAge: document.getElementById("header-age"),
   headerCloud: document.getElementById("header-cloud"),
   headerTime: document.getElementById("header-time"),
+  headerCoins: document.getElementById("header-coins"),
   eventMsg: document.getElementById("event-msg"),
   speechBubble: document.getElementById("speech-bubble"),
   minigameOverlay: document.getElementById("minigame-overlay"),
@@ -773,6 +777,7 @@ function updateUI() {
 
   DOM.headerAge.textContent = "IDADE:" + state.age;
   DOM.headerTime.textContent = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  DOM.headerCoins.textContent = "COINS:" + state.coins;
   DOM.headerCloud.textContent = FirebaseService.isOnline() ? "☁" : "●";
   DOM.headerCloud.classList.toggle("online", FirebaseService.isOnline());
 
@@ -887,6 +892,10 @@ function gameTick() {
   else if (state.hygiene < CFG.ALERT_LOW) { showSpeech(pick(MSGS.dirty)); }
 
   checkEvolution();
+  if (state.age > 0 && state.age % 50 === 0 && state.age !== state.lastBirthday) {
+    triggerBirthday();
+    state.lastBirthday = state.age;
+  }
   if (Math.random() < CFG.EVENT_CHANCE) triggerRandomEvent();
 
   updateUI();
@@ -950,6 +959,14 @@ function makeSick() {
   addLog(state.petName + " está doente! Use remédio, banho ou comida.", "danger");
   showSpeech(pick(MSGS.sick));
   showEvent("⚠ DOENTE!");
+}
+
+function triggerBirthday() {
+  state.happy = clamp(state.happy + 25);
+  state.coins += 5;
+  showSpeech(pick(MSGS.event_birthday));
+  addLog("Aniversário! " + state.petName + " ganhou um presente! +25 felicidade +5 moedas.", "good");
+  spawnParticles("play");
 }
 
 function killPet() {
@@ -1167,17 +1184,19 @@ function startMinigame() {
     DOM.minigameOverlay.classList.add("hidden");
 
     const earned = Math.round(score * 8);
+    const coinsEarned = Math.floor(score / 2) + 1;
     state.happy = clamp(state.happy + earned);
     state.energy = clamp(state.energy - 12);
+    state.coins += coinsEarned;
 
     if (score >= 4) {
       Audio.minigameWin();
       showSpeech(pick(MSGS.minigame_win));
-      addLog("Mini-jogo: Ganhou! +" + earned + " felicidade.", "good");
+      addLog("Mini-jogo: Ganhou! +" + earned + " felicidade. +" + coinsEarned + " moedas.", "good");
     } else {
       Audio.minigameLose();
       showSpeech(pick(MSGS.minigame_lose));
-      addLog("Mini-jogo: Perdeu... +" + earned + " felicidade.", "");
+      addLog("Mini-jogo: Perdeu... +" + earned + " felicidade. +" + coinsEarned + " moedas.", "");
     }
     spawnParticles("play");
     updateUI();
@@ -1212,6 +1231,37 @@ function startAutoSave() {
   saveTimer = setInterval(saveState, CFG.SAVE_INTERVAL_MS);
 }
 
+function handleCanvasClick(e) {
+  if (!state.alive || state.poops <= 0) return;
+  const rect = DOM.canvas.getBoundingClientRect();
+  const scaleX = 80 / rect.width, scaleY = 64 / rect.height;
+  const x = (e.clientX - rect.left) * scaleX;
+  const y = (e.clientY - rect.top) * scaleY;
+  const positions = [[12, 48], [62, 46], [6, 42], [68, 52]];
+  for (let i = 0; i < positions.length; i++) {
+    if (i >= state.poops) break;
+    const px = positions[i][0], py = positions[i][1];
+    if (x >= px && x <= px + 8 && y >= py && y <= py + 8) {
+      state.poops--;
+      Audio.bathe();
+      spawnParticles("bathe");
+      addLog("Limpou uma sujeira!", "");
+      updateUI();
+      return;
+    }
+  }
+}
+
+function handleKey(e) {
+  if (e.target.tagName === "INPUT") return; // don't interfere with inputs
+  const key = e.key.toLowerCase();
+  if (key === "a") doAction("feed");
+  else if (key === "b") doAction("play");
+  else if (key === "c") doAction("sleep");
+  else if (key === "d") doAction("bathe");
+  else if (key === "m" && state.sick) doAction("heal");
+}
+
 function startGame() {
   DOM.mainScreen.classList.remove("hidden");
   DOM.headerTitle.textContent = state.petName;
@@ -1219,6 +1269,8 @@ function startGame() {
   startAnimLoop();
   startTick();
   startAutoSave();
+  DOM.canvas.addEventListener("click", handleCanvasClick);
+  document.addEventListener("keydown", handleKey);
   addLog("Bem-vindo, " + state.playerName + "! Cuide de " + state.petName + "!", "good");
   showSpeech("Olá, " + state.playerName + "!");
 }
