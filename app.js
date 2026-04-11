@@ -20,14 +20,14 @@
 // ─────────────────────────────────────────────────────────────────
 
 const CFG = {
-  TICK_MS:        10_000,   // 10 s reais = 1 tick de jogo
+  TICK_MS: 10_000,   // 10 s reais = 1 tick de jogo
   DECAY: { hunger: 4, happy: 3, energy: 2, hygiene: 2 },
-  ALERT_LOW:      25,
-  CRITICAL_LOW:   10,
-  EVOLVE_CHILD:   18,
-  EVOLVE_TEEN:    60,
-  EVOLVE_ADULT:   180,
-  EVENT_CHANCE:   0.08,
+  ALERT_LOW: 25,
+  CRITICAL_LOW: 10,
+  EVOLVE_CHILD: 18,
+  EVOLVE_TEEN: 60,
+  EVOLVE_ADULT: 180,
+  EVENT_CHANCE: 0.08,
   SICK_TICKS_LIMIT: 20,
   SAVE_INTERVAL_MS: 15_000,
   ANIM_INTERVAL_MS: 140,
@@ -36,26 +36,28 @@ const CFG = {
 const STAGES = ["egg", "baby", "child", "teen", "adult"];
 
 const MSGS = {
-  feed:        ["Nhom nhom!", "Que delícia!", "Mais um, plz!"],
-  play:        ["Eba! Diversão!", "Uhuul!", "Vamos jogar!"],
-  sleep:       ["Boa noite...", "Zzz...", "Sonhos lindos!"],
-  bathe:       ["Que frescura...", "Limpinho!", "Splaaash!"],
-  medicine:    ["Ui, que amargo!", "Tomando remédio...", "Me cura!"],
-  sick:        ["Me sinto mal...", "Achoo!", "Tô doente :("],
-  heal:        ["Curado! Yay!", "De volta à vida!", "Me sinto ótimo!"],
-  evolve:      ["Evoluí!! 🎉", "Ficou maior!", "Uau que crescimento!"],
-  hungry:      ["Tô com FOME!", "Me alimenta!", "Barrigão vazio..."],
-  bored:       ["Tô tedioso...", "Brinca comigo!", "Nada pra fazer..."],
-  tired:       ["Tô cansado...", "Quero dormir...", "ZzZz..."],
-  dirty:       ["Fedorento!!", "Me lava!", "Cheiro ruim :("],
-  event_gift:  ["Achei algo!", "Presente! 🎁", "Que surpresa!"],
-  event_sick:  ["Peguei um resfriado...", "Achoo! Doente.", "Que azar..."],
+  feed: ["Nhom nhom!", "Que delícia!", "Mais um, plz!"],
+  play: ["Eba! Diversão!", "Uhuul!", "Vamos jogar!"],
+  sleep: ["Boa noite...", "Zzz...", "Sonhos lindos!"],
+  bathe: ["Que frescura...", "Limpinho!", "Splaaash!"],
+  medicine: ["Ui, que amargo!", "Tomando remédio...", "Me cura!"],
+  sick: ["Me sinto mal...", "Achoo!", "Tô doente :("],
+  heal: ["Curado! Yay!", "De volta à vida!", "Me sinto ótimo!"],
+  evolve: ["Evoluí!! 🎉", "Ficou maior!", "Uau que crescimento!"],
+  hungry: ["Tô com FOME!", "Me alimenta!", "Barrigão vazio..."],
+  bored: ["Tô tedioso...", "Brinca comigo!", "Nada pra fazer..."],
+  tired: ["Tô cansado...", "Quero dormir...", "ZzZz..."],
+  dirty: ["Fedorento!!", "Me lava!", "Cheiro ruim :("],
+  event_gift: ["Achei algo!", "Presente! 🎁", "Que surpresa!"],
+  event_sick: ["Peguei um resfriado...", "Achoo! Doente.", "Que azar..."],
   event_happy: ["Tô feliz! 🌟", "Dia especial!", "Yay!"],
-  death:       ["Vou dormir pra sempre...", "Cuide bem do próximo.", "Adeus amigo..."],
-  minigame_win:  ["Acertei! ⭐", "Uhuul! Ganho!", "Sou o melhor!"],
+  event_energy: ["Energia renovada!", "Tô cheio de vida!", "Uau, que pique!"],
+  event_clean: ["Me sinto limpo!", "Cheiroso!", "Refrescante!"],
+  death: ["Vou dormir pra sempre...", "Cuide bem do próximo.", "Adeus amigo..."],
+  minigame_win: ["Acertei! ⭐", "Uhuul! Ganho!", "Sou o melhor!"],
   minigame_lose: ["Errei...", "Quase...", "De novo!"],
-  morning:     ["Bom dia!", "Acordei!", "Que sono gostoso!"],
-  night:       ["Tá tarde...", "Hora de dormir?", "Boa noite, mundo."],
+  morning: ["Bom dia!", "Acordei!", "Que sono gostoso!"],
+  night: ["Tá tarde...", "Hora de dormir?", "Boa noite, mundo."],
 };
 
 // ─────────────────────────────────────────────────────────────────
@@ -64,21 +66,22 @@ const MSGS = {
 
 let state = {
   playerName: "JOGADOR",
-  petName:    "TAMA",
-  species:    "blob",
-  stage:      "egg",
-  age:        0,
-  hunger:     80,
-  happy:      80,
-  energy:     80,
-  hygiene:    80,
-  alive:      true,
-  sick:       false,
-  sickTicks:  0,
-  sleeping:   false,
-  lastSave:   Date.now(),
-  createdAt:  Date.now(),
-  bestAge:    0,
+  petName: "TAMA",
+  species: "blob",
+  stage: "egg",
+  age: 0,
+  hunger: 80,
+  happy: 80,
+  energy: 80,
+  hygiene: 80,
+  poops: 0,
+  alive: true,
+  sick: false,
+  sickTicks: 0,
+  sleeping: false,
+  lastSave: Date.now(),
+  createdAt: Date.now(),
+  bestAge: 0,
 };
 
 // ─────────────────────────────────────────────────────────────────
@@ -89,8 +92,8 @@ const D = "#0f380f", M = "#306230", L = "#8bac0f", _ = null;
 
 function px(ctx, grid, ox, oy, sz) {
   sz = sz || 4;
-  grid.forEach(function(row, r) {
-    row.forEach(function(col, c) {
+  grid.forEach(function (row, r) {
+    row.forEach(function (col, c) {
       if (!col) return;
       ctx.fillStyle = col;
       ctx.fillRect(ox + c * sz, oy + r * sz, sz, sz);
@@ -118,29 +121,29 @@ function drawDead(ctx) {
 
 // ══ BLOB ══════════════════════════════════════════════════════════
 const blobSprites = {
-  egg: function(ctx, frame) {
+  egg: function (ctx, frame) {
     ctx.clearRect(0, 0, 80, 64);
     const dy = frame % 3 === 0 ? 1 : 0;
     px(ctx, [
-      [_,_,M,M,M,_,_],
-      [_,M,L,L,L,M,_],
-      [M,L,D,L,L,L,M],
-      [M,L,L,L,L,L,M],
-      [M,L,D,L,D,L,M],
-      [_,M,L,L,L,M,_],
-      [_,_,M,M,M,_,_],
+      [_, _, M, M, M, _, _],
+      [_, M, L, L, L, M, _],
+      [M, L, D, L, L, L, M],
+      [M, L, L, L, L, L, M],
+      [M, L, D, L, D, L, M],
+      [_, M, L, L, L, M, _],
+      [_, _, M, M, M, _, _],
     ], 22, 12 + dy, 5);
   },
-  baby_idle: function(ctx, frame) {
+  baby_idle: function (ctx, frame) {
     ctx.clearRect(0, 0, 80, 64);
     const dy = frame % 4 < 2 ? 0 : 1;
     px(ctx, [
-      [_,M,M,M,M,_],
-      [M,L,L,L,L,M],
-      [M,L,L,L,L,M],
-      [M,L,L,L,L,M],
-      [_,M,L,L,M,_],
-      [_,_,M,M,_,_],
+      [_, M, M, M, M, _],
+      [M, L, L, L, L, M],
+      [M, L, L, L, L, M],
+      [M, L, L, L, L, M],
+      [_, M, L, L, M, _],
+      [_, _, M, M, _, _],
     ], 24, 16 + dy);
     // eyes
     if (frame % 8 !== 7) {
@@ -150,14 +153,43 @@ const blobSprites = {
     }
     ctx.fillStyle = D; ctx.fillRect(32, 30, 4, 2);
   },
-  baby_happy: function(ctx, frame) {
+  baby_happy: function (ctx, frame) {
     blobSprites.baby_idle(ctx, frame);
     ctx.fillStyle = D; ctx.fillRect(30, 31, 8, 2); ctx.fillRect(28, 29, 2, 2); ctx.fillRect(38, 29, 2, 2);
   },
-  baby_sick: function(ctx, frame) {
+  baby_sad: function (ctx, frame) {
+    blobSprites.baby_idle(ctx, frame);
+    ctx.fillStyle = D; ctx.fillRect(30, 33, 8, 2); ctx.fillRect(28, 35, 2, 2); ctx.fillRect(38, 35, 2, 2);
+  },
+  baby_tired: function (ctx, frame) {
+    ctx.clearRect(0, 0, 80, 64);
+    const dy = frame % 4 < 2 ? 0 : 1;
+    px(ctx, [
+      [_, M, M, M, M, _],
+      [M, L, L, L, L, M],
+      [M, L, L, L, L, M],
+      [M, L, L, L, L, M],
+      [_, M, L, L, M, _],
+      [_, _, M, M, _, _],
+    ], 24, 16 + dy);
+    // closed eyes
+    ctx.fillStyle = D; ctx.fillRect(28, 24, 4, 1); ctx.fillRect(40, 24, 4, 1);
+    ctx.fillStyle = D; ctx.fillRect(32, 30, 4, 2);
+  },
+  baby_hungry: function (ctx, frame) {
+    blobSprites.baby_idle(ctx, frame);
+    ctx.fillStyle = D; ctx.fillRect(32, 30, 4, 4); // open mouth
+  },
+  baby_dirty: function (ctx, frame) {
+    blobSprites.baby_idle(ctx, frame);
+    // add dirt spots
+    ctx.fillStyle = M;
+    ctx.fillRect(26, 16, 3, 3); ctx.fillRect(44, 18, 3, 3);
+  },
+  baby_sick: function (ctx, frame) {
     ctx.clearRect(0, 0, 80, 64);
     px(ctx, [
-      [_,M,M,M,M,_], [M,L,L,L,L,M], [M,L,L,L,L,M], [M,L,L,L,L,M], [_,M,L,L,M,_], [_,_,M,M,_,_],
+      [_, M, M, M, M, _], [M, L, L, L, L, M], [M, L, L, L, L, M], [M, L, L, L, L, M], [_, M, L, L, M, _], [_, _, M, M, _, _],
     ], 24, 16);
     ctx.fillStyle = D;
     ctx.fillRect(27, 21, 2, 6); ctx.fillRect(31, 21, 2, 6); ctx.fillRect(27, 21, 6, 2); ctx.fillRect(27, 25, 6, 2);
@@ -167,18 +199,18 @@ const blobSprites = {
     ctx.fillStyle = M;
     ctx.fillRect(26, 16, 3, 3); ctx.fillRect(44, 18, 3, 3);
   },
-  baby_sleep: function(ctx) {
+  baby_sleep: function (ctx) {
     ctx.clearRect(0, 0, 80, 64);
     px(ctx, [
-      [_,M,M,M,M,_], [M,L,L,L,L,M], [M,L,L,L,L,M], [M,L,L,L,L,M], [_,M,L,L,M,_], [_,_,M,M,_,_],
+      [_, M, M, M, M, _], [M, L, L, L, L, M], [M, L, L, L, L, M], [M, L, L, L, L, M], [_, M, L, L, M, _], [_, _, M, M, _, _],
     ], 24, 20);
     ctx.fillStyle = D; ctx.fillRect(28, 25, 4, 1); ctx.fillRect(40, 25, 4, 1);
     drawSleep(ctx);
   },
-  baby_dead: function(ctx) {
+  baby_dead: function (ctx) {
     ctx.clearRect(0, 0, 80, 64);
     px(ctx, [
-      [_,M,M,M,M,_], [M,L,L,L,L,M], [M,L,L,L,L,M], [M,L,L,L,L,M], [_,M,L,L,M,_], [_,_,M,M,_,_],
+      [_, M, M, M, M, _], [M, L, L, L, L, M], [M, L, L, L, L, M], [M, L, L, L, L, M], [_, M, L, L, M, _], [_, _, M, M, _, _],
     ], 24, 16);
     ctx.fillStyle = D;
     ctx.fillRect(27, 21, 2, 6); ctx.fillRect(31, 21, 2, 6); ctx.fillRect(27, 21, 6, 2); ctx.fillRect(27, 25, 6, 2);
@@ -186,13 +218,13 @@ const blobSprites = {
     ctx.fillRect(30, 32, 8, 2);
     drawDead(ctx);
   },
-  child_idle: function(ctx, frame) {
+  child_idle: function (ctx, frame) {
     ctx.clearRect(0, 0, 80, 64);
     const dx = frame % 6 < 3 ? -1 : 1;
     px(ctx, [
-      [_,_,M,M,M,M,_,_], [_,M,L,L,L,L,M,_],
-      [M,L,L,D,L,D,L,M], [M,L,L,L,L,L,L,M],
-      [M,L,L,L,L,L,L,M], [_,M,M,L,L,M,M,_],
+      [_, _, M, M, M, M, _, _], [_, M, L, L, L, L, M, _],
+      [M, L, L, D, L, D, L, M], [M, L, L, L, L, L, L, M],
+      [M, L, L, L, L, L, L, M], [_, M, M, L, L, M, M, _],
     ], 20 + dx, 12);
     ctx.fillStyle = D;
     ctx.fillRect(22 + dx, 36, 4, 8); ctx.fillRect(42 + dx, 36, 4, 8);
@@ -203,14 +235,14 @@ const blobSprites = {
     }
     ctx.fillRect(30 + dx, 28, 4, 2);
   },
-  teen_idle: function(ctx, frame) {
+  teen_idle: function (ctx, frame) {
     ctx.clearRect(0, 0, 80, 64);
     const dy = frame % 4 < 2 ? 0 : 1;
     px(ctx, [
-      [_,_,_,M,M,M,M,_,_,_], [_,_,M,L,L,L,L,M,_,_],
-      [_,M,L,L,D,L,D,L,M,_], [_,M,L,L,L,L,L,L,M,_],
-      [_,M,L,L,L,L,L,L,M,_], [_,M,L,L,L,L,L,L,M,_],
-      [_,_,M,L,L,L,L,M,_,_], [_,_,M,L,_,_,L,M,_,_],
+      [_, _, _, M, M, M, M, _, _, _], [_, _, M, L, L, L, L, M, _, _],
+      [_, M, L, L, D, L, D, L, M, _], [_, M, L, L, L, L, L, L, M, _],
+      [_, M, L, L, L, L, L, L, M, _], [_, M, L, L, L, L, L, L, M, _],
+      [_, _, M, L, L, L, L, M, _, _], [_, _, M, L, _, _, L, M, _, _],
     ], 16, 8 + dy);
     ctx.fillStyle = D;
     if (frame % 4 < 2) {
@@ -220,15 +252,15 @@ const blobSprites = {
     }
     ctx.fillRect(24, 40 + dy, 4, 8); ctx.fillRect(44, 40 + dy, 4, 8);
   },
-  adult_idle: function(ctx, frame) {
+  adult_idle: function (ctx, frame) {
     ctx.clearRect(0, 0, 80, 64);
     const shake = frame % 8;
     px(ctx, [
-      [_,_,M,M,M,M,M,M,_,_], [_,M,L,L,L,L,L,L,M,_],
-      [M,L,L,D,L,L,D,L,L,M], [M,L,L,L,L,L,L,L,L,M],
-      [M,L,L,L,L,L,L,L,L,M], [M,L,L,L,L,L,L,L,L,M],
-      [M,L,L,L,L,L,L,L,L,M], [_,M,M,L,L,L,L,M,M,_],
-      [_,_,M,L,_,_,L,M,_,_], [_,_,_,M,_,_,M,_,_,_],
+      [_, _, M, M, M, M, M, M, _, _], [_, M, L, L, L, L, L, L, M, _],
+      [M, L, L, D, L, L, D, L, L, M], [M, L, L, L, L, L, L, L, L, M],
+      [M, L, L, L, L, L, L, L, L, M], [M, L, L, L, L, L, L, L, L, M],
+      [M, L, L, L, L, L, L, L, L, M], [_, M, M, L, L, L, L, M, M, _],
+      [_, _, M, L, _, _, L, M, _, _], [_, _, _, M, _, _, M, _, _, _],
     ], 14, 5);
     ctx.fillStyle = D;
     ctx.fillRect(22, 43, 4, 8 + (shake < 4 ? 4 : 0));
@@ -244,14 +276,14 @@ const blobSprites = {
 // ══ CAT ═══════════════════════════════════════════════════════════
 const catSprites = {
   egg: blobSprites.egg,
-  baby_idle: function(ctx, frame) {
+  baby_idle: function (ctx, frame) {
     ctx.clearRect(0, 0, 80, 64);
     const dy = frame % 4 < 2 ? 0 : 1;
     // ears
     ctx.fillStyle = D; ctx.fillRect(24, 12 + dy, 4, 6); ctx.fillRect(44, 12 + dy, 4, 6);
     ctx.fillStyle = M; ctx.fillRect(25, 13 + dy, 2, 4); ctx.fillRect(45, 13 + dy, 2, 4);
     px(ctx, [
-      [_,M,M,M,M,_], [M,L,L,L,L,M], [M,L,L,L,L,M], [M,L,L,L,L,M], [_,M,L,L,M,_], [_,_,M,M,_,_],
+      [_, M, M, M, M, _], [M, L, L, L, L, M], [M, L, L, L, L, M], [M, L, L, L, L, M], [_, M, L, L, M, _], [_, _, M, M, _, _],
     ], 24, 16 + dy);
     if (frame % 8 !== 7) {
       ctx.fillStyle = D; ctx.fillRect(28, 22, 4, 3); ctx.fillRect(40, 22, 4, 3);
@@ -266,27 +298,27 @@ const catSprites = {
     const tf = frame % 6;
     ctx.fillRect(48 + tf, 34, 4, 4);
   },
-  baby_happy: function(ctx, frame) {
+  baby_happy: function (ctx, frame) {
     catSprites.baby_idle(ctx, frame);
     ctx.fillStyle = D; ctx.fillRect(30, 30, 8, 2);
   },
-  baby_sick: function(ctx, frame) {
+  baby_sick: function (ctx, frame) {
     catSprites.baby_idle(ctx, 0);
     ctx.fillStyle = D;
     ctx.fillRect(27, 21, 2, 6); ctx.fillRect(31, 21, 2, 6); ctx.fillRect(27, 21, 6, 2); ctx.fillRect(27, 25, 6, 2);
     ctx.fillRect(39, 21, 2, 6); ctx.fillRect(43, 21, 2, 6); ctx.fillRect(39, 21, 6, 2); ctx.fillRect(39, 25, 6, 2);
   },
   baby_sleep: blobSprites.baby_sleep,
-  baby_dead:  blobSprites.baby_dead,
-  child_idle: function(ctx, frame) {
+  baby_dead: blobSprites.baby_dead,
+  child_idle: function (ctx, frame) {
     ctx.clearRect(0, 0, 80, 64);
     ctx.fillStyle = D; ctx.fillRect(22, 6, 5, 8); ctx.fillRect(41, 6, 5, 8);
     ctx.fillStyle = M; ctx.fillRect(23, 7, 3, 6); ctx.fillRect(42, 7, 3, 6);
     const dx = frame % 6 < 3 ? -1 : 1;
     px(ctx, [
-      [_,_,M,M,M,M,_,_], [_,M,L,L,L,L,M,_],
-      [M,L,L,D,L,D,L,M], [M,L,L,L,L,L,L,M],
-      [M,L,L,L,L,L,L,M], [_,M,M,L,L,M,M,_],
+      [_, _, M, M, M, M, _, _], [_, M, L, L, L, L, M, _],
+      [M, L, L, D, L, D, L, M], [M, L, L, L, L, L, L, M],
+      [M, L, L, L, L, L, L, M], [_, M, M, L, L, M, M, _],
     ], 20 + dx, 12);
     ctx.fillStyle = D;
     ctx.fillRect(22 + dx, 36, 4, 8); ctx.fillRect(42 + dx, 36, 4, 8);
@@ -294,8 +326,8 @@ const catSprites = {
     const tf = frame % 8;
     ctx.fillRect(52, 36 + tf, 4, 4);
   },
-  teen_idle:  blobSprites.teen_idle,
-  adult_idle: function(ctx, frame) {
+  teen_idle: blobSprites.teen_idle,
+  adult_idle: function (ctx, frame) {
     ctx.clearRect(0, 0, 80, 64);
     ctx.fillStyle = D; ctx.fillRect(18, 0, 6, 8); ctx.fillRect(48, 0, 6, 8);
     ctx.fillStyle = M; ctx.fillRect(19, 1, 4, 6); ctx.fillRect(49, 1, 4, 6);
@@ -310,25 +342,25 @@ const catSprites = {
 
 // ══ DINO ══════════════════════════════════════════════════════════
 const dinoSprites = {
-  egg: function(ctx, frame) {
+  egg: function (ctx, frame) {
     ctx.clearRect(0, 0, 80, 64);
     const dy = frame % 2 === 0 ? 0 : 1;
     px(ctx, [
-      [_,_,M,M,M,M,_,_], [_,M,L,L,L,L,M,_],
-      [M,L,L,L,D,L,L,M], [M,L,L,L,L,L,L,M],
-      [M,L,D,L,L,L,L,M], [M,L,L,L,L,D,L,M],
-      [_,M,L,L,L,L,M,_], [_,_,M,M,M,M,_,_],
+      [_, _, M, M, M, M, _, _], [_, M, L, L, L, L, M, _],
+      [M, L, L, L, D, L, L, M], [M, L, L, L, L, L, L, M],
+      [M, L, D, L, L, L, L, M], [M, L, L, L, L, D, L, M],
+      [_, M, L, L, L, L, M, _], [_, _, M, M, M, M, _, _],
     ], 20, 10 + dy, 5);
   },
-  baby_idle: function(ctx, frame) {
+  baby_idle: function (ctx, frame) {
     ctx.clearRect(0, 0, 80, 64);
     const dy = frame % 4 < 2 ? 0 : 1;
     // spikes
     ctx.fillStyle = D;
     ctx.fillRect(30, 10 + dy, 4, 5); ctx.fillRect(38, 8 + dy, 4, 5); ctx.fillRect(24, 12 + dy, 4, 4);
     px(ctx, [
-      [_,M,M,M,M,_], [M,L,L,L,L,M], [M,L,L,L,L,M],
-      [M,L,L,L,L,M], [_,M,L,L,M,_], [_,_,M,M,_,_],
+      [_, M, M, M, M, _], [M, L, L, L, L, M], [M, L, L, L, L, M],
+      [M, L, L, L, L, M], [_, M, L, L, M, _], [_, _, M, M, _, _],
     ], 24, 14 + dy);
     if (frame % 8 !== 7) {
       ctx.fillStyle = D; ctx.fillRect(28, 20, 4, 4); ctx.fillRect(40, 20, 4, 4);
@@ -337,40 +369,40 @@ const dinoSprites = {
     // tail
     ctx.fillRect(12, 30, 12, 4); ctx.fillRect(8, 32, 4, 4);
   },
-  baby_happy: function(ctx, frame) {
+  baby_happy: function (ctx, frame) {
     dinoSprites.baby_idle(ctx, frame);
     ctx.fillStyle = D; ctx.fillRect(30, 30, 8, 3);
   },
   baby_sick: blobSprites.baby_sick,
-  baby_sleep: function(ctx) {
+  baby_sleep: function (ctx) {
     ctx.clearRect(0, 0, 80, 64);
     ctx.fillStyle = D;
     ctx.fillRect(30, 10, 4, 5); ctx.fillRect(38, 8, 4, 5); ctx.fillRect(24, 12, 4, 4);
     px(ctx, [
-      [_,M,M,M,M,_], [M,L,L,L,L,M], [M,L,L,L,L,M],
-      [M,L,L,L,L,M], [_,M,L,L,M,_], [_,_,M,M,_,_],
+      [_, M, M, M, M, _], [M, L, L, L, L, M], [M, L, L, L, L, M],
+      [M, L, L, L, L, M], [_, M, L, L, M, _], [_, _, M, M, _, _],
     ], 24, 18);
     ctx.fillStyle = D; ctx.fillRect(28, 23, 4, 1); ctx.fillRect(40, 23, 4, 1);
     ctx.fillRect(12, 28, 12, 4);
     drawSleep(ctx);
   },
-  baby_dead:  blobSprites.baby_dead,
-  child_idle: function(ctx, frame) {
+  baby_dead: blobSprites.baby_dead,
+  child_idle: function (ctx, frame) {
     ctx.clearRect(0, 0, 80, 64);
     const dx = frame % 6 < 3 ? -1 : 1;
     ctx.fillStyle = D;
     ctx.fillRect(28, 4, 5, 8); ctx.fillRect(38, 2, 5, 8); ctx.fillRect(22, 7, 4, 6);
     px(ctx, [
-      [_,_,M,M,M,M,_,_], [_,M,L,L,L,L,M,_],
-      [M,L,L,D,L,D,L,M], [M,L,L,L,L,L,L,M],
-      [M,L,L,L,L,L,L,M], [_,M,M,L,L,M,M,_],
+      [_, _, M, M, M, M, _, _], [_, M, L, L, L, L, M, _],
+      [M, L, L, D, L, D, L, M], [M, L, L, L, L, L, L, M],
+      [M, L, L, L, L, L, L, M], [_, M, M, L, L, M, M, _],
     ], 20 + dx, 12);
     ctx.fillStyle = D;
     ctx.fillRect(22 + dx, 36, 4, 8); ctx.fillRect(42 + dx, 36, 4, 8);
     ctx.fillRect(8, 28, 14, 5 + dx); ctx.fillRect(4, 30, 6, 4);
   },
-  teen_idle:  blobSprites.teen_idle,
-  adult_idle: function(ctx, frame) {
+  teen_idle: blobSprites.teen_idle,
+  adult_idle: function (ctx, frame) {
     ctx.clearRect(0, 0, 80, 64);
     ctx.fillStyle = D;
     ctx.fillRect(26, 0, 5, 6); ctx.fillRect(34, -2, 6, 8); ctx.fillRect(43, 1, 5, 6); ctx.fillRect(20, 3, 5, 5);
@@ -383,12 +415,12 @@ const dinoSprites = {
 // ══ GHOST ═════════════════════════════════════════════════════════
 const ghostSprites = {
   egg: blobSprites.egg,
-  baby_idle: function(ctx, frame) {
+  baby_idle: function (ctx, frame) {
     ctx.clearRect(0, 0, 80, 64);
     const dy = frame % 3 === 0 ? -1 : 0;
     const wavy = [
-      [_,_,M,M,M,_,_], [_,M,L,L,L,M,_], [M,L,L,L,L,L,M],
-      [M,L,L,L,L,L,M], [M,L,L,L,L,L,M], [M,L,M,L,M,L,M],
+      [_, _, M, M, M, _, _], [_, M, L, L, L, M, _], [M, L, L, L, L, L, M],
+      [M, L, L, L, L, L, M], [M, L, L, L, L, L, M], [M, L, M, L, M, L, M],
     ];
     px(ctx, wavy, 22, 14 + dy);
     if (frame % 8 !== 7) {
@@ -398,59 +430,59 @@ const ghostSprites = {
     // floating particles
     if (frame % 4 === 0) { ctx.fillStyle = L; ctx.fillRect(18, 24, 2, 2); ctx.fillRect(54, 20, 2, 2); }
   },
-  baby_happy: function(ctx, frame) {
+  baby_happy: function (ctx, frame) {
     ghostSprites.baby_idle(ctx, frame);
     ctx.fillStyle = D; ctx.fillRect(30, 31, 8, 2);
   },
-  baby_sick: function(ctx, frame) {
+  baby_sick: function (ctx, frame) {
     ghostSprites.baby_idle(ctx, 0);
     ctx.fillStyle = D;
     ctx.fillRect(27, 20, 2, 6); ctx.fillRect(31, 20, 2, 6); ctx.fillRect(27, 20, 6, 2); ctx.fillRect(27, 24, 6, 2);
     ctx.fillRect(39, 20, 2, 6); ctx.fillRect(43, 20, 2, 6); ctx.fillRect(39, 20, 6, 2); ctx.fillRect(39, 24, 6, 2);
   },
-  baby_sleep: function(ctx) {
+  baby_sleep: function (ctx) {
     ctx.clearRect(0, 0, 80, 64);
     px(ctx, [
-      [_,_,M,M,M,_,_], [_,M,L,L,L,M,_], [M,L,L,L,L,L,M],
-      [M,L,L,L,L,L,M], [M,L,L,L,L,L,M], [M,L,M,L,M,L,M],
+      [_, _, M, M, M, _, _], [_, M, L, L, L, M, _], [M, L, L, L, L, L, M],
+      [M, L, L, L, L, L, M], [M, L, L, L, L, L, M], [M, L, M, L, M, L, M],
     ], 22, 16);
     ctx.fillStyle = D; ctx.fillRect(28, 21, 4, 1); ctx.fillRect(38, 21, 4, 1);
     drawSleep(ctx);
   },
-  baby_dead: function(ctx) {
+  baby_dead: function (ctx) {
     ctx.clearRect(0, 0, 80, 64);
     px(ctx, [
-      [_,_,M,M,M,_,_], [_,M,L,L,L,M,_], [M,L,L,L,L,L,M],
-      [M,L,L,L,L,L,M], [M,L,L,L,L,L,M], [M,L,M,L,M,L,M],
+      [_, _, M, M, M, _, _], [_, M, L, L, L, M, _], [M, L, L, L, L, L, M],
+      [M, L, L, L, L, L, M], [M, L, L, L, L, L, M], [M, L, M, L, M, L, M],
     ], 22, 14);
     ctx.fillStyle = D;
     ctx.fillRect(27, 20, 2, 6); ctx.fillRect(31, 20, 2, 6); ctx.fillRect(27, 20, 6, 2); ctx.fillRect(27, 24, 6, 2);
     ctx.fillRect(39, 20, 2, 6); ctx.fillRect(43, 20, 2, 6); ctx.fillRect(39, 20, 6, 2); ctx.fillRect(39, 24, 6, 2);
     drawDead(ctx);
   },
-  child_idle: function(ctx, frame) {
+  child_idle: function (ctx, frame) {
     ctx.clearRect(0, 0, 80, 64);
     const dy = frame % 3 === 0 ? -1 : 0;
     px(ctx, [
-      [_,_,M,M,M,M,_,_], [_,M,L,L,L,L,M,_],
-      [M,L,L,D,L,D,L,M], [M,L,L,L,L,L,L,M],
-      [M,L,L,L,L,L,L,M], [M,L,L,L,L,L,L,M],
-      [M,L,M,L,M,L,M,M],
+      [_, _, M, M, M, M, _, _], [_, M, L, L, L, L, M, _],
+      [M, L, L, D, L, D, L, M], [M, L, L, L, L, L, L, M],
+      [M, L, L, L, L, L, L, M], [M, L, L, L, L, L, L, M],
+      [M, L, M, L, M, L, M, M],
     ], 20, 8 + dy);
     ctx.fillStyle = D; ctx.fillRect(30, 20 + dy, 8, 2);
     if (frame % 4 === 0) {
       ctx.fillStyle = L; ctx.fillRect(14, 20, 2, 2); ctx.fillRect(58, 16, 2, 2); ctx.fillRect(12, 28, 2, 2);
     }
   },
-  teen_idle:  blobSprites.teen_idle,
-  adult_idle: function(ctx, frame) {
+  teen_idle: blobSprites.teen_idle,
+  adult_idle: function (ctx, frame) {
     ctx.clearRect(0, 0, 80, 64);
     const dy = frame % 3 === 0 ? -2 : 0;
     px(ctx, [
-      [_,_,M,M,M,M,M,M,_,_], [_,M,L,L,L,L,L,L,M,_],
-      [M,L,L,D,L,L,D,L,L,M], [M,L,L,L,L,L,L,L,L,M],
-      [M,L,L,L,L,L,L,L,L,M], [M,L,L,L,L,L,L,L,L,M],
-      [M,L,L,L,L,L,L,L,L,M], [M,L,M,L,M,L,M,L,M,M],
+      [_, _, M, M, M, M, M, M, _, _], [_, M, L, L, L, L, L, L, M, _],
+      [M, L, L, D, L, L, D, L, L, M], [M, L, L, L, L, L, L, L, L, M],
+      [M, L, L, L, L, L, L, L, L, M], [M, L, L, L, L, L, L, L, L, M],
+      [M, L, L, L, L, L, L, L, L, M], [M, L, M, L, M, L, M, L, M, M],
     ], 14, 4 + dy);
     ctx.fillStyle = D; ctx.fillRect(30, 28 + dy, 12, 2);
     if (frame % 4 === 0) {
@@ -467,10 +499,10 @@ function getSpriteFn(speciesKey, stage, mood) {
   const sp = SPECIES_SPRITES[speciesKey] || blobSprites;
   if (stage === "egg") return sp.egg || blobSprites.egg;
   const prefix = stage === "adult" ? "adult" : stage === "teen" ? "teen" : stage === "child" ? "child" : "baby";
-  if (mood === "dead")    return sp[prefix + "_dead"]  || sp.baby_dead  || blobSprites.baby_dead;
-  if (mood === "sleep")   return sp[prefix + "_sleep"] || sp.baby_sleep || blobSprites.baby_sleep;
-  if (mood === "sick")    return sp[prefix + "_sick"]  || sp.baby_sick  || blobSprites.baby_sick;
-  if (mood === "happy")   return sp[prefix + "_happy"] || sp[prefix + "_idle"] || blobSprites.baby_idle;
+  if (mood === "dead") return sp[prefix + "_dead"] || sp.baby_dead || blobSprites.baby_dead;
+  if (mood === "sleep") return sp[prefix + "_sleep"] || sp.baby_sleep || blobSprites.baby_sleep;
+  if (mood === "sick") return sp[prefix + "_sick"] || sp.baby_sick || blobSprites.baby_sick;
+  if (mood === "happy") return sp[prefix + "_happy"] || sp[prefix + "_idle"] || blobSprites.baby_idle;
   return sp[prefix + "_idle"] || blobSprites.baby_idle;
 }
 
@@ -478,11 +510,11 @@ function getSpriteFn(speciesKey, stage, mood) {
 // 4. SOM RETRO (Web Audio API)
 // ─────────────────────────────────────────────────────────────────
 
-const Audio = (function() {
+const Audio = (function () {
   let ctx = null;
   function gc() {
     if (!ctx) {
-      try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+      try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { }
     }
     return ctx;
   }
@@ -497,21 +529,21 @@ const Audio = (function() {
       gain.gain.setValueAtTime(vol || 0.12, t);
       gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
       osc.start(t); osc.stop(t + dur);
-    } catch(_) {}
+    } catch (_) { }
   }
   return {
-    feed:   () => { beep(880,0.09); beep(1100,0.09,0.1,"square",0.1); },
-    play:   () => { beep(660,0.07); beep(880,0.07,0.1,"square",0.08); beep(1100,0.1,0.12,"square",0.16); },
-    sleep:  () => { beep(330,0.35,0.07,"sine"); },
-    bathe:  () => { [550,440,660].forEach((f,i) => beep(f,0.07,0.1,"square",i*0.09)); },
-    alert:  () => { [220,220].forEach((f,i) => beep(f,0.18,0.18,"sawtooth",i*0.25)); },
-    heal:   () => { [440,550,660,880].forEach((f,i) => beep(f,0.1,0.14,"sine",i*0.07)); },
-    evolve: () => { [400,500,600,700,900,1100,1400].forEach((f,i) => beep(f,0.12,0.18,"square",i*0.07)); },
-    death:  () => { [400,350,300,250,200,150].forEach((f,i) => beep(f,0.22,0.15,"sine",i*0.22)); },
-    boot:   () => { [200,300,400,500,700,900,1200].forEach((f,i) => beep(f,0.09,0.1,"square",i*0.09)); },
-    click:  () => { beep(440,0.04,0.06,"square"); },
-    minigameWin: () => { [660,880,1100,1320].forEach((f,i) => beep(f,0.08,0.15,"square",i*0.05)); },
-    minigameLose:() => { beep(220,0.3,0.12,"sawtooth"); },
+    feed: () => { beep(880, 0.09); beep(1100, 0.09, 0.1, "square", 0.1); },
+    play: () => { beep(660, 0.07); beep(880, 0.07, 0.1, "square", 0.08); beep(1100, 0.1, 0.12, "square", 0.16); },
+    sleep: () => { beep(330, 0.35, 0.07, "sine"); },
+    bathe: () => { [550, 440, 660].forEach((f, i) => beep(f, 0.07, 0.1, "square", i * 0.09)); },
+    alert: () => { [220, 220].forEach((f, i) => beep(f, 0.18, 0.18, "sawtooth", i * 0.25)); },
+    heal: () => { [440, 550, 660, 880].forEach((f, i) => beep(f, 0.1, 0.14, "sine", i * 0.07)); },
+    evolve: () => { [400, 500, 600, 700, 900, 1100, 1400].forEach((f, i) => beep(f, 0.12, 0.18, "square", i * 0.07)); },
+    death: () => { [400, 350, 300, 250, 200, 150].forEach((f, i) => beep(f, 0.22, 0.15, "sine", i * 0.22)); },
+    boot: () => { [200, 300, 400, 500, 700, 900, 1200].forEach((f, i) => beep(f, 0.09, 0.1, "square", i * 0.09)); },
+    click: () => { beep(440, 0.04, 0.06, "square"); },
+    minigameWin: () => { [660, 880, 1100, 1320].forEach((f, i) => beep(f, 0.08, 0.15, "square", i * 0.05)); },
+    minigameLose: () => { beep(220, 0.3, 0.12, "sawtooth"); },
   };
 })();
 
@@ -520,63 +552,64 @@ const Audio = (function() {
 // ─────────────────────────────────────────────────────────────────
 
 const DOM = {
-  bootScreen:    document.getElementById("boot-screen"),
-  bootBar:       document.getElementById("boot-bar"),
-  bootPct:       document.getElementById("boot-pct"),
-  nameScreen:    document.getElementById("name-screen"),
-  mainScreen:    document.getElementById("main-screen"),
-  playerNameIn:  document.getElementById("player-name-input"),
-  petNameIn:     document.getElementById("pet-name-input"),
-  startBtn:      document.getElementById("start-btn"),
-  canvas:        document.getElementById("pet-canvas"),
-  fxCanvas:      document.getElementById("fx-canvas"),
-  barHunger:     document.getElementById("bar-hunger"),
-  barHappy:      document.getElementById("bar-happy"),
-  barEnergy:     document.getElementById("bar-energy"),
-  barHygiene:    document.getElementById("bar-hygiene"),
-  valHunger:     document.getElementById("val-hunger"),
-  valHappy:      document.getElementById("val-happy"),
-  valEnergy:     document.getElementById("val-energy"),
-  valHygiene:    document.getElementById("val-hygiene"),
-  iconHunger:    document.getElementById("icon-hunger"),
-  iconHappy:     document.getElementById("icon-happy"),
-  iconEnergy:    document.getElementById("icon-energy"),
-  iconHygiene:   document.getElementById("icon-hygiene"),
-  iconSick:      document.getElementById("icon-sick"),
-  headerTitle:   document.getElementById("header-title"),
-  headerAge:     document.getElementById("header-age"),
-  headerCloud:   document.getElementById("header-cloud"),
-  eventMsg:      document.getElementById("event-msg"),
-  speechBubble:  document.getElementById("speech-bubble"),
+  bootScreen: document.getElementById("boot-screen"),
+  bootBar: document.getElementById("boot-bar"),
+  bootPct: document.getElementById("boot-pct"),
+  nameScreen: document.getElementById("name-screen"),
+  mainScreen: document.getElementById("main-screen"),
+  playerNameIn: document.getElementById("player-name-input"),
+  petNameIn: document.getElementById("pet-name-input"),
+  startBtn: document.getElementById("start-btn"),
+  canvas: document.getElementById("pet-canvas"),
+  fxCanvas: document.getElementById("fx-canvas"),
+  barHunger: document.getElementById("bar-hunger"),
+  barHappy: document.getElementById("bar-happy"),
+  barEnergy: document.getElementById("bar-energy"),
+  barHygiene: document.getElementById("bar-hygiene"),
+  valHunger: document.getElementById("val-hunger"),
+  valHappy: document.getElementById("val-happy"),
+  valEnergy: document.getElementById("val-energy"),
+  valHygiene: document.getElementById("val-hygiene"),
+  iconHunger: document.getElementById("icon-hunger"),
+  iconHappy: document.getElementById("icon-happy"),
+  iconEnergy: document.getElementById("icon-energy"),
+  iconHygiene: document.getElementById("icon-hygiene"),
+  iconSick: document.getElementById("icon-sick"),
+  headerTitle: document.getElementById("header-title"),
+  headerAge: document.getElementById("header-age"),
+  headerCloud: document.getElementById("header-cloud"),
+  headerTime: document.getElementById("header-time"),
+  eventMsg: document.getElementById("event-msg"),
+  speechBubble: document.getElementById("speech-bubble"),
   minigameOverlay: document.getElementById("minigame-overlay"),
-  minigameCanvas:  document.getElementById("minigame-canvas"),
-  btnA:          document.getElementById("btn-a"),
-  btnB:          document.getElementById("btn-b"),
-  btnC:          document.getElementById("btn-c"),
-  btnD:          document.getElementById("btn-d"),
-  btnMedicine:   document.getElementById("btn-medicine"),
-  medicineRow:   document.getElementById("medicine-row"),
-  deathModal:    document.getElementById("death-modal"),
-  deathMsg:      document.getElementById("death-msg"),
-  deathScore:    document.getElementById("death-score"),
-  restartBtn:    document.getElementById("restart-btn"),
-  evolveModal:   document.getElementById("evolve-modal"),
-  evolveCanvas:  document.getElementById("evolve-canvas"),
-  evolveMsg:     document.getElementById("evolve-msg"),
-  evolveOk:      document.getElementById("evolve-ok"),
-  resetBtn:      document.getElementById("reset-btn"),
-  panelName:     document.getElementById("panel-name"),
-  panelStage:    document.getElementById("panel-stage"),
-  panelMood:     document.getElementById("panel-mood"),
-  panelAge:      document.getElementById("panel-age"),
-  panelSpecies:  document.getElementById("panel-species"),
-  panelBest:     document.getElementById("panel-best"),
-  logList:       document.getElementById("log-list"),
+  minigameCanvas: document.getElementById("minigame-canvas"),
+  btnA: document.getElementById("btn-a"),
+  btnB: document.getElementById("btn-b"),
+  btnC: document.getElementById("btn-c"),
+  btnD: document.getElementById("btn-d"),
+  btnMedicine: document.getElementById("btn-medicine"),
+  medicineRow: document.getElementById("medicine-row"),
+  deathModal: document.getElementById("death-modal"),
+  deathMsg: document.getElementById("death-msg"),
+  deathScore: document.getElementById("death-score"),
+  restartBtn: document.getElementById("restart-btn"),
+  evolveModal: document.getElementById("evolve-modal"),
+  evolveCanvas: document.getElementById("evolve-canvas"),
+  evolveMsg: document.getElementById("evolve-msg"),
+  evolveOk: document.getElementById("evolve-ok"),
+  resetBtn: document.getElementById("reset-btn"),
+  panelName: document.getElementById("panel-name"),
+  panelStage: document.getElementById("panel-stage"),
+  panelMood: document.getElementById("panel-mood"),
+  panelAge: document.getElementById("panel-age"),
+  panelSpecies: document.getElementById("panel-species"),
+  panelBest: document.getElementById("panel-best"),
+  logList: document.getElementById("log-list"),
 };
 
-const ctx2d  = DOM.canvas.getContext("2d");
-const fxCtx  = DOM.fxCanvas.getContext("2d");
-const evCtx  = DOM.evolveCanvas.getContext("2d");
+const ctx2d = DOM.canvas.getContext("2d");
+const fxCtx = DOM.fxCanvas.getContext("2d");
+const evCtx = DOM.evolveCanvas.getContext("2d");
 
 // ─────────────────────────────────────────────────────────────────
 // 6. VARIÁVEIS DE CONTROLE
@@ -603,12 +636,12 @@ async function loadState() {
   const saved = await FirebaseService.loadState();
   if (!saved) return false;
   const elapsed = Date.now() - saved.lastSave;
-  const ticks   = Math.floor(elapsed / CFG.TICK_MS);
+  const ticks = Math.floor(elapsed / CFG.TICK_MS);
   Object.assign(state, saved);
   if (ticks > 0 && state.alive) {
-    state.hunger  = clamp(state.hunger  - CFG.DECAY.hunger  * ticks);
-    state.happy   = clamp(state.happy   - CFG.DECAY.happy   * ticks);
-    state.energy  = clamp(state.energy  - CFG.DECAY.energy  * ticks);
+    state.hunger = clamp(state.hunger - CFG.DECAY.hunger * ticks);
+    state.happy = clamp(state.happy - CFG.DECAY.happy * ticks);
+    state.energy = clamp(state.energy - CFG.DECAY.energy * ticks);
     state.hygiene = clamp(state.hygiene - CFG.DECAY.hygiene * ticks);
     if (state.sick) {
       state.sickTicks += ticks;
@@ -624,8 +657,8 @@ async function loadState() {
 // ─────────────────────────────────────────────────────────────────
 
 function spawnParticles(type) {
-  const colors = { feed: ["#0f380f","#306230"], play: ["#306230","#8bac0f"], bathe: ["#8bac0f","#0f380f"], heal: ["#8bac0f","#306230"] };
-  const c = colors[type] || ["#306230","#8bac0f"];
+  const colors = { feed: ["#0f380f", "#306230"], play: ["#306230", "#8bac0f"], bathe: ["#8bac0f", "#0f380f"], heal: ["#8bac0f", "#306230"] };
+  const c = colors[type] || ["#306230", "#8bac0f"];
   for (let i = 0; i < 10; i++) {
     fxParticles.push({
       x: 80 + (Math.random() - 0.5) * 40,
@@ -643,11 +676,19 @@ function updateFX() {
   fxCtx.clearRect(0, 0, 160, 128);
   fxParticles = fxParticles.filter(p => p.life > 0);
   fxParticles.forEach(p => {
-    p.x += p.vx; p.y += p.vy; p.vy += 0.2; p.life -= 0.05;
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.4; // gravity
+    if (p.y > 118) { // floor
+      p.y = 118;
+      p.vy = -p.vy * 0.6; // bounce
+      p.vx *= 0.8; // friction
+    }
+    p.life -= 0.03;
     fxCtx.globalAlpha = p.life;
     fxCtx.fillStyle = p.color;
     const s = Math.round(p.size);
-    fxCtx.fillRect(Math.round(p.x) - s/2, Math.round(p.y) - s/2, s, s);
+    fxCtx.fillRect(Math.round(p.x) - s / 2, Math.round(p.y) - s / 2, s, s);
   });
   fxCtx.globalAlpha = 1;
 }
@@ -657,18 +698,41 @@ function updateFX() {
 // ─────────────────────────────────────────────────────────────────
 
 function getMoodKey() {
-  if (!state.alive)    return "dead";
-  if (state.sleeping)  return "sleep";
-  if (state.sick)      return "sick";
+  if (!state.alive) return "dead";
+  if (state.sleeping) return "sleep";
+  if (state.sick) return "sick";
   if (state.happy > 70) return "happy";
+  if (state.happy < 30) return "sad";
+  if (state.energy < 30) return "tired";
+  if (state.hunger < 30) return "hungry";
+  if (state.hygiene < 30) return "dirty";
   return "idle";
 }
 
 function renderPet() {
   const fn = getSpriteFn(state.species || "blob", state.stage, getMoodKey());
   ctx2d.clearRect(0, 0, 80, 64);
+
+  if (state.poops > 0) drawPoops();
+
   fn(ctx2d, animFrame);
   updateFX();
+}
+
+function drawPoops() {
+  const D = "#0f380f", M = "#306230", L = "#8bac0f", _ = null;
+  const poopGrid = [
+    [_, _, M, M, _, _],
+    [_, M, L, L, M, _],
+    [M, L, L, D, L, M],
+    [M, L, L, L, L, M],
+    [_, M, M, M, M, _]
+  ];
+  // fixed screen positions for up to 4 poops
+  const positions = [[12, 48], [62, 46], [6, 42], [68, 52]];
+  for (let i = 0; i < Math.min(state.poops || 0, 4); i++) {
+    px(ctx2d, poopGrid, positions[i][0], positions[i][1], 2);
+  }
 }
 
 function renderEvolvePreview(stage) {
@@ -682,24 +746,24 @@ function renderEvolvePreview(stage) {
 // ─────────────────────────────────────────────────────────────────
 
 function updateUI() {
-  DOM.barHunger.style.width  = state.hunger  + "%";
-  DOM.barHappy.style.width   = state.happy   + "%";
-  DOM.barEnergy.style.width  = state.energy  + "%";
+  DOM.barHunger.style.width = state.hunger + "%";
+  DOM.barHappy.style.width = state.happy + "%";
+  DOM.barEnergy.style.width = state.energy + "%";
   DOM.barHygiene.style.width = state.hygiene + "%";
 
-  DOM.valHunger.textContent  = Math.round(state.hunger);
-  DOM.valHappy.textContent   = Math.round(state.happy);
-  DOM.valEnergy.textContent  = Math.round(state.energy);
+  DOM.valHunger.textContent = Math.round(state.hunger);
+  DOM.valHappy.textContent = Math.round(state.happy);
+  DOM.valEnergy.textContent = Math.round(state.energy);
   DOM.valHygiene.textContent = Math.round(state.hygiene);
 
-  toggleLow(DOM.barHunger,  state.hunger);
-  toggleLow(DOM.barHappy,   state.happy);
-  toggleLow(DOM.barEnergy,  state.energy);
+  toggleLow(DOM.barHunger, state.hunger);
+  toggleLow(DOM.barHappy, state.happy);
+  toggleLow(DOM.barEnergy, state.energy);
   toggleLow(DOM.barHygiene, state.hygiene);
 
-  toggleAlert(DOM.iconHunger,  state.hunger  < CFG.ALERT_LOW);
-  toggleAlert(DOM.iconHappy,   state.happy   < CFG.ALERT_LOW);
-  toggleAlert(DOM.iconEnergy,  state.energy  < CFG.ALERT_LOW);
+  toggleAlert(DOM.iconHunger, state.hunger < CFG.ALERT_LOW);
+  toggleAlert(DOM.iconHappy, state.happy < CFG.ALERT_LOW);
+  toggleAlert(DOM.iconEnergy, state.energy < CFG.ALERT_LOW);
   toggleAlert(DOM.iconHygiene, state.hygiene < CFG.ALERT_LOW);
 
   DOM.iconSick.style.display = state.sick ? "block" : "none";
@@ -708,17 +772,18 @@ function updateUI() {
   DOM.medicineRow.classList.toggle("hidden", !state.sick);
 
   DOM.headerAge.textContent = "IDADE:" + state.age;
+  DOM.headerTime.textContent = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   DOM.headerCloud.textContent = FirebaseService.isOnline() ? "☁" : "●";
   DOM.headerCloud.classList.toggle("online", FirebaseService.isOnline());
 
   const SPECIES_NAMES = { blob: "BOLINHA", cat: "GATINHO", dino: "DINO", ghost: "FANTASMA" };
-  DOM.panelName.textContent    = "👤 " + state.playerName;
-  DOM.panelStage.textContent   = "🐾 " + state.petName + " [" + stageLabel(state.stage) + "]";
-  DOM.panelMood.textContent    = "😶 " + getMood();
-  DOM.panelAge.textContent     = "⏱ TICKS: " + state.age;
+  DOM.panelName.textContent = "👤 " + state.playerName;
+  DOM.panelStage.textContent = "🐾 " + state.petName + " [" + stageLabel(state.stage) + "]";
+  DOM.panelMood.textContent = "😶 " + getMood();
+  DOM.panelAge.textContent = "⏱ TICKS: " + state.age;
   DOM.panelSpecies.textContent = "🌟 " + (SPECIES_NAMES[state.species] || "BLOB");
   const best = parseInt(localStorage.getItem("tamaweb_best") || "0");
-  DOM.panelBest.textContent    = "🏆 RECORDE: " + best + " ticks";
+  DOM.panelBest.textContent = "🏆 RECORDE: " + best + " ticks";
 }
 
 function toggleLow(el, val) {
@@ -729,9 +794,9 @@ function toggleAlert(el, on) {
 }
 
 function getMood() {
-  if (!state.alive)    return "MORTO ✝";
-  if (state.sick)      return "DOENTE 🤒";
-  if (state.sleeping)  return "DORMINDO 💤";
+  if (!state.alive) return "MORTO ✝";
+  if (state.sick) return "DOENTE 🤒";
+  if (state.sleeping) return "DORMINDO 💤";
   const avg = (state.hunger + state.happy + state.energy + state.hygiene) / 4;
   if (avg >= 85) return "FELIZ 😄";
   if (avg >= 65) return "BEM 🙂";
@@ -751,14 +816,14 @@ function showSpeech(msg) {
   bubbleTimer = setTimeout(() => DOM.speechBubble.classList.add("hidden"), 2800);
 }
 
-function showEvent(msg)  { DOM.eventMsg.textContent = msg; DOM.eventMsg.classList.remove("hidden"); }
-function hideEvent()     { DOM.eventMsg.classList.add("hidden"); }
+function showEvent(msg) { DOM.eventMsg.textContent = msg; DOM.eventMsg.classList.remove("hidden"); }
+function hideEvent() { DOM.eventMsg.classList.add("hidden"); }
 
 function addLog(msg, type) {
   const el = document.createElement("div");
   el.className = "log-entry pixel-text" + (type ? " " + type : "");
   const now = new Date();
-  const ts  = now.getHours().toString().padStart(2,"0") + ":" + now.getMinutes().toString().padStart(2,"0");
+  const ts = now.getHours().toString().padStart(2, "0") + ":" + now.getMinutes().toString().padStart(2, "0");
   el.textContent = "[" + ts + "] " + msg;
   DOM.logList.prepend(el);
   while (DOM.logList.children.length > 24) DOM.logList.removeChild(DOM.logList.lastChild);
@@ -773,8 +838,8 @@ function gameTick() {
   state.age++;
 
   if (state.sleeping) {
-    state.energy  = clamp(state.energy  + 12);
-    state.hunger  = clamp(state.hunger  - CFG.DECAY.hunger  * 0.4);
+    state.energy = clamp(state.energy + 12);
+    state.hunger = clamp(state.hunger - CFG.DECAY.hunger * 0.4);
     state.hygiene = clamp(state.hygiene - CFG.DECAY.hygiene * 0.3);
     if (state.energy >= 85) {
       state.sleeping = false;
@@ -782,9 +847,9 @@ function gameTick() {
       addLog(state.petName + " acordou descansado.", "good");
     }
   } else {
-    state.hunger  = clamp(state.hunger  - CFG.DECAY.hunger);
-    state.happy   = clamp(state.happy   - CFG.DECAY.happy);
-    state.energy  = clamp(state.energy  - CFG.DECAY.energy);
+    state.hunger = clamp(state.hunger - CFG.DECAY.hunger);
+    state.happy = clamp(state.happy - CFG.DECAY.happy);
+    state.energy = clamp(state.energy - CFG.DECAY.energy);
     state.hygiene = clamp(state.hygiene - CFG.DECAY.hygiene);
   }
 
@@ -792,6 +857,14 @@ function gameTick() {
   const hr = new Date().getHours();
   if ((hr >= 22 || hr < 6) && !state.sleeping && state.energy < 40 && state.age % 3 === 0) {
     showSpeech(pick(MSGS.night));
+  }
+
+  // Gera sujeira
+  if (state.hygiene < 45 && Math.random() < 0.25) {
+    if (state.poops < 4) {
+      state.poops++;
+      addLog("Oops... fez sujeira!", "warn");
+    }
   }
 
   // Doença por negligência
@@ -808,9 +881,9 @@ function gameTick() {
   if (state.hunger <= 0 && state.energy <= 0 && state.happy <= 0) { killPet(); return; }
 
   // Alertas
-  if (state.hunger  < CFG.ALERT_LOW) { Audio.alert(); showSpeech(pick(MSGS.hungry)); }
-  else if (state.happy   < CFG.ALERT_LOW) { showSpeech(pick(MSGS.bored)); }
-  else if (state.energy  < CFG.ALERT_LOW) { showSpeech(pick(MSGS.tired)); }
+  if (state.hunger < CFG.ALERT_LOW) { Audio.alert(); showSpeech(pick(MSGS.hungry)); }
+  else if (state.happy < CFG.ALERT_LOW) { showSpeech(pick(MSGS.bored)); }
+  else if (state.energy < CFG.ALERT_LOW) { showSpeech(pick(MSGS.tired)); }
   else if (state.hygiene < CFG.ALERT_LOW) { showSpeech(pick(MSGS.dirty)); }
 
   checkEvolution();
@@ -821,11 +894,11 @@ function gameTick() {
 
 function checkEvolution() {
   const prev = state.stage;
-  if      (state.age < 5)               state.stage = "egg";
+  if (state.age < 5) state.stage = "egg";
   else if (state.age < CFG.EVOLVE_CHILD) state.stage = "baby";
-  else if (state.age < CFG.EVOLVE_TEEN)  state.stage = "child";
+  else if (state.age < CFG.EVOLVE_TEEN) state.stage = "child";
   else if (state.age < CFG.EVOLVE_ADULT) state.stage = "teen";
-  else                                    state.stage = "adult";
+  else state.stage = "adult";
 
   if (state.stage !== prev) {
     Audio.evolve();
@@ -841,19 +914,27 @@ function showEvolveModal() {
 }
 
 function stageLabel(s) {
-  return { egg:"OVO", baby:"BEBÊ", child:"CRIANÇA", teen:"JOVEM", adult:"ADULTO" }[s] || s;
+  return { egg: "OVO", baby: "BEBÊ", child: "CRIANÇA", teen: "JOVEM", adult: "ADULTO" }[s] || s;
 }
 
 function triggerRandomEvent() {
   const roll = Math.random();
-  if (roll < 0.35) {
+  if (roll < 0.2) {
     state.happy = clamp(state.happy + 18);
     showSpeech(pick(MSGS.event_happy));
     addLog("Evento: " + state.petName + " ficou feliz de repente!", "good");
-  } else if (roll < 0.60) {
+  } else if (roll < 0.35) {
     state.hunger = clamp(state.hunger + 12);
     showSpeech(pick(MSGS.event_gift));
     addLog("Evento: Ganhou um petisco!", "good");
+  } else if (roll < 0.5) {
+    state.energy = clamp(state.energy + 15);
+    showSpeech(pick(MSGS.event_energy));
+    addLog("Evento: Energia renovada!", "good");
+  } else if (roll < 0.65) {
+    state.hygiene = clamp(state.hygiene + 15);
+    showSpeech(pick(MSGS.event_clean));
+    addLog("Evento: Banhou-se sozinho!", "good");
   } else {
     if (!state.sick) {
       makeSick();
@@ -941,16 +1022,17 @@ function doAction(action) {
 
     case "bathe":
       state.hygiene = clamp(state.hygiene + 32);
+      state.poops = 0; // CLEAN POOP!
       if (state.sick && state.hygiene > 60) healSick();
       Audio.bathe();
       showSpeech(pick(MSGS.bathe));
-      addLog("Deu banho em " + state.petName + ".", "");
+      addLog("Limpou " + state.petName + ".", "");
       spawnParticles("bathe");
       break;
 
     case "heal":
       if (!state.sick) { showSpeech("Tô bem, obrigado!"); return; }
-      state.hunger  = clamp(state.hunger  + 10);
+      state.hunger = clamp(state.hunger + 10);
       state.hygiene = clamp(state.hygiene + 10);
       healSick();
       showSpeech(pick(MSGS.medicine));
@@ -1000,16 +1082,16 @@ function startMinigame() {
 
       // Outer Box
       mgCtx.fillStyle = life > 0.7 ? "#0f380f" : "#306230";
-      mgCtx.fillRect(cx - r, cy - r, r*2, r*2);
-      
+      mgCtx.fillRect(cx - r, cy - r, r * 2, r * 2);
+
       // Inner Box
       mgCtx.fillStyle = "#8bac0f";
-      mgCtx.fillRect(cx - r + 2, cy - r + 2, r*2 - 4, r*2 - 4);
-      
+      mgCtx.fillRect(cx - r + 2, cy - r + 2, r * 2 - 4, r * 2 - 4);
+
       // Target Crosshair
       mgCtx.fillStyle = "#0f380f";
-      mgCtx.fillRect(cx - 1, cy - r, 2, r*2);
-      mgCtx.fillRect(cx - r, cy - 1, r*2, 2);
+      mgCtx.fillRect(cx - 1, cy - r, 2, r * 2);
+      mgCtx.fillRect(cx - r, cy - 1, r * 2, 2);
 
       // Center dot
       mgCtx.fillStyle = "#8bac0f";
@@ -1065,7 +1147,7 @@ function startMinigame() {
     const cx = (clientX - rect.left) * scaleX;
     const cy = (clientY - rect.top) * scaleY;
     const dx = cx - activeTarget.x, dy = cy - activeTarget.y;
-    const dist = Math.sqrt(dx*dx + dy*dy);
+    const dist = Math.sqrt(dx * dx + dy * dy);
     if (dist < 20) {
       score++;
       clearTimeout(targetTimer);
@@ -1077,7 +1159,7 @@ function startMinigame() {
 
   function endMG() {
     clearTimeout(targetTimer);
-    DOM.minigameCanvas.removeEventListener("click",      handleClick);
+    DOM.minigameCanvas.removeEventListener("click", handleClick);
     DOM.minigameCanvas.removeEventListener("touchstart", handleClick);
     clearInterval(mgState.loop);
     mgState = null;
@@ -1085,7 +1167,7 @@ function startMinigame() {
     DOM.minigameOverlay.classList.add("hidden");
 
     const earned = Math.round(score * 8);
-    state.happy  = clamp(state.happy  + earned);
+    state.happy = clamp(state.happy + earned);
     state.energy = clamp(state.energy - 12);
 
     if (score >= 4) {
@@ -1102,7 +1184,7 @@ function startMinigame() {
   }
 
   mgState = { loop: setInterval(() => drawMG(), 30) };
-  DOM.minigameCanvas.addEventListener("click",      handleClick);
+  DOM.minigameCanvas.addEventListener("click", handleClick);
   DOM.minigameCanvas.addEventListener("touchstart", handleClick, { passive: true });
 
   setTimeout(spawnTarget, 800);
@@ -1142,7 +1224,7 @@ function startGame() {
 }
 
 // ── Boot com barra de progresso ──────────────────────────────────
-window.addEventListener("DOMContentLoaded", async function() {
+window.addEventListener("DOMContentLoaded", async function () {
   Audio.boot();
 
   // Barra de boot animada
@@ -1185,10 +1267,10 @@ document.querySelectorAll(".species-btn").forEach(btn => {
 
 DOM.startBtn.addEventListener("click", () => {
   const pn = DOM.playerNameIn.value.trim().toUpperCase() || "JOGADOR";
-  const tn = DOM.petNameIn.value.trim().toUpperCase()    || "TAMA";
+  const tn = DOM.petNameIn.value.trim().toUpperCase() || "TAMA";
   state.playerName = pn; state.petName = tn;
-  state.species    = selectedSpecies;
-  state.createdAt  = Date.now(); state.lastSave = Date.now();
+  state.species = selectedSpecies;
+  state.createdAt = Date.now(); state.lastSave = Date.now();
   DOM.nameScreen.classList.add("hidden");
   Audio.boot();
   startGame();
